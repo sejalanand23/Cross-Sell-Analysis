@@ -13,7 +13,7 @@ Association rules have been generated in R. Dashboard is created in Python's Str
 - **Percentage Insights**: Displays the percentage of presence of selected items in the dataset.
 
 ## Dashboard Snippet
-![Dashboard Snippet](Screenshot.png)
+![Dashboard Preview](Screenshot.png)
 
 ## Usage
 
