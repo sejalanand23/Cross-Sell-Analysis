@@ -33,16 +33,16 @@ consequents_items = df['Consequents'].apply(extract_items).explode().unique()
 
 col1, col2, col3, col4 = st.columns([1,7,7,1])
 with col2:
-    antecedents = st.multiselect('Select Antecedents', antecedents_items)
+    antecedents = st.multiselect('Select Antecedents', antecedents_items, default = ['ham', 'rice'])
 with col3:
-    consequents = st.multiselect('Select Consequents', consequents_items)
+    consequents = st.multiselect('Select Consequents', consequents_items, default = ['napkins'])
 
 # show below only when the user selects the antecedents and consequents
 if antecedents and consequents:
 
     # Subset of DataFrame based on mask
-    mask = (df['Antecedents'].apply(lambda x: all(item in x for item in antecedents)) & 
-            df['Consequents'].apply(lambda x: all(item in x for item in consequents)))
+    mask = (df['Antecedents'].apply(lambda x: x == str(antecedents)) & 
+            df['Consequents'].apply(lambda x: x == str(consequents)))
 
     subset_df = df[mask]
 
@@ -54,18 +54,18 @@ if antecedents and consequents:
 
     else:
         # Count rows where Antecedents and Consequents are present
-        left_count = df['Antecedents'].apply(lambda x: any(item in x for item in antecedents)).sum()
-        right_count = df['Consequents'].apply(lambda x: any(item in x for item in consequents)).sum()
+        left_count = len(df[df['Antecedents'].apply(lambda x: x == str(antecedents))])
+        right_count = len(df[df['Consequents'].apply(lambda x: x == str(consequents))])
 
         # Create Venn diagram
         plt.figure(figsize=(5, 3))
-        venn = venn2(subsets=(left_count, right_count, len(subset_df)), set_labels=(antecedents, consequents), normalize_to=0.1)
+        venn = venn2(subsets=(left_count, right_count, len(subset_df)), set_labels=(str(antecedents), str(consequents)), normalize_to=0.1)
         venn.get_patch_by_id('10').set_color('#96b8e2')
         venn.get_patch_by_id('01').set_color('#ccb4d8')
         venn.get_patch_by_id('11').set_color('#a299d3')
-        venn.get_label_by_id('10').set_text('{}\n ({}%)'.format(left_count, ((left_count/len(df))*100).round(2)))
-        venn.get_label_by_id('01').set_text('{}\n ({}%)'.format(right_count, ((right_count/len(df))*100).round(2)))
-        venn.get_label_by_id('11').set_text('{}\n ({}%)'.format(len(subset_df), round(((len(subset_df)/len(df))*100),2)))
+        venn.get_label_by_id('10').set_text('{}\n ({}%)'.format(left_count, round((left_count/len(df))*100),4))
+        venn.get_label_by_id('01').set_text('{}\n ({}%)'.format(right_count, round((right_count/len(df))*100),4))
+        venn.get_label_by_id('11').set_text('{}\n ({}%)'.format(len(subset_df), round(((len(subset_df)/len(df))*100),4)))
         for text in venn.set_labels:
             text.set_fontsize(5)
         for text in venn.subset_labels:
@@ -75,7 +75,9 @@ if antecedents and consequents:
         with fig2:
             st.pyplot(plt)
         with fig3:
-            add_vertical_space(9)
-            st.info("{} is present in {}% of the baskets.".format(antecedents, round((left_count/len(df))*100, 2)))
-            st.info("{} is present in {}% of the baskets.".format(consequents, round((right_count/len(df))*100, 2)))
-            st.info("The combination of {} and {} is present in {}% of the baskets.".format(antecedents, consequents, round((len(subset_df)/len(df))*100, 2)))
+            add_vertical_space(7)
+            st.success("There is {}% probability that a customer who buys {} will also buy {}.".format(round(subset_df['confidence'].sum(),2),antecedents, consequents))
+            st.success("A customer who buys {} is {} times more likely to buy {}.".format(antecedents, round(subset_df['lift'].sum(),2), consequents))
+            st.info("{} is present in {}% of the baskets.".format(antecedents, round((left_count/len(df))*100, 4)))
+            st.info("{} is present in {}% of the baskets.".format(consequents, round((right_count/len(df))*100, 4)))
+            st.info("The combination of {} and {} is present in {}% of the baskets.".format(antecedents, consequents, round((len(subset_df)/len(df))*100, 4)))
