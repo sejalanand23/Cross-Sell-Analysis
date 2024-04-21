@@ -6,7 +6,6 @@ Association rules have been generated in R. Dashboard is created in Python's Str
 
 ## Features
 
-- **Data Loading**: Reads the Groceries dataset and displays the first few rows.
 - **Association Rules**: Converts the dataset into transactions and generates association rules using Apriori algorithm.
 - **Interactive Selection**: Allows users to select Antecedents and Consequents from the unique items present in the dataset.
 - **Venn Diagram Visualization**: Visualizes the intersection of selected Antecedents and Consequents using a Venn diagram.
